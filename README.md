@@ -15,15 +15,24 @@ Boilerplate para levantar **agentes de IA de WhatsApp** rápido y bien. La infra
 
 ## Armá tu agente sin tocar código
 
+### Con Claude Code (recomendado)
+
 ```bash
-npm install
-npm run setup     # te entrevista y escribe config/agent.yaml + .env por vos
+git clone https://github.com/diegovasquez-ai/wa-agent-starter.git
+cd wa-agent-starter && npm install
+claude            # abrí Claude Code y escribí:  /build-agent
+```
+
+`/build-agent` te **entrevista** (nombre del negocio, a qué se dedica, tono, horario, canal, tu API key de OpenRouter) y deja configurado `config/agent.yaml` + `.env`, listo para probar. No inventa código: solo completa la config de un agente ya construido y testeado — así podés confiar en lo que corre y encima *entenderlo*.
+
+### Sin Claude Code
+
+```bash
+npm run setup     # la misma entrevista, por terminal
 npm run demo      # abre http://localhost:3000  (o: npm run chat)
 ```
 
-`npm run setup` te hace unas preguntas sobre tu negocio (nombre, a qué se dedica, tono, horario, canal, tu API key de OpenRouter) y deja todo configurado. No genera código: solo completa la configuración de un agente que ya está construido y probado.
-
-**¿Preferís hacerlo a mano?** Copiá `.env.example` a `.env`, poné tu `OPENROUTER_API_KEY`, y editá la personalidad en [`config/agent.yaml`](config/agent.yaml). El código no cambia entre un agente y otro — solo ese archivo.
+**¿Preferís a mano?** Copiá `.env.example` a `.env`, poné tu `OPENROUTER_API_KEY`, y editá [`config/agent.yaml`](config/agent.yaml). El código no cambia entre un agente y otro — solo ese archivo.
 
 ---
 
