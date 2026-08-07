@@ -39,7 +39,7 @@ services:
       - LLM_MODEL=${LLM_MODEL:-anthropic/claude-sonnet-4.5}
       - LLM_MAX_TOKENS=${LLM_MAX_TOKENS:-1024}
       - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.3}
-      - APP_TITLE=${APP_TITLE:-wa-agent-kit}
+      - APP_TITLE=${APP_TITLE:-wa-agent-starter}
       - AGENT_CONFIG_PATH=${AGENT_CONFIG_PATH:-config/agent.yaml}
       - MESSAGE_DEBOUNCE_MS=${MESSAGE_DEBOUNCE_MS:-8000}
       - AGENT_MAX_TOOL_ITERATIONS=${AGENT_MAX_TOOL_ITERATIONS:-6}

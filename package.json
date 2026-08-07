@@ -1,5 +1,5 @@
 {
-  "name": "wa-agent-kit",
+  "name": "wa-agent-starter",
   "version": "0.1.0",
   "description": "Boilerplate para agentes de IA de WhatsApp: OpenRouter + Redis + frontend pluggable (Cloud API, GHL, Chatwoot, YCloud, web) + deploy en Coolify.",
   "type": "module",

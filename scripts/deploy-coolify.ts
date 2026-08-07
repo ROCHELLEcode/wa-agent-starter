@@ -43,7 +43,7 @@ for (const k of ['COOLIFY_URL', 'COOLIFY_API_TOKEN', 'GITHUB_TOKEN', 'GITHUB_REP
   }
 }
 
-const PROJECT_NAME = env.PROJECT_NAME || 'wa-agent-kit';
+const PROJECT_NAME = env.PROJECT_NAME || 'wa-agent-starter';
 const APP_NAME = env.APP_NAME || 'wa-agent';
 const COOLIFY = env.COOLIFY_URL!.replace(/\/+$/, '');
 const REPO_SLUG = env.GITHUB_REPO!.replace(/^https:\/\/github\.com\//, '').replace(/\.git$/, '');

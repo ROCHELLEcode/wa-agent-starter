@@ -1,4 +1,4 @@
-# wa-agent-kit
+# wa-agent-starter
 
 Boilerplate para levantar **agentes de IA de WhatsApp** rápido y bien. La infraestructura de verdad — la que normalmente reescribís en cada proyecto — ya resuelta:
 

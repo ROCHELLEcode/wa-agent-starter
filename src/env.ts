@@ -43,7 +43,7 @@ const schema = z
     LLM_MAX_TOKENS: z.coerce.number().int().positive().default(1024),
     LLM_TEMPERATURE: z.coerce.number().min(0).max(2).default(0.3),
     APP_URL: z.string().default(''),
-    APP_TITLE: z.string().default('wa-agent-kit'),
+    APP_TITLE: z.string().default('wa-agent-starter'),
 
     // ── Agente ────────────────────────────────────────────────
     AGENT_CONFIG_PATH: z.string().default('config/agent.yaml'),
