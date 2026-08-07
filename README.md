@@ -13,21 +13,17 @@ Boilerplate para levantar **agentes de IA de WhatsApp** rápido y bien. La infra
 
 ---
 
-## Probalo en 60 segundos (sin WhatsApp ni base de datos)
+## Armá tu agente sin tocar código
 
 ```bash
 npm install
-cp .env.example .env        # poné tu OPENROUTER_API_KEY (es lo único necesario)
-npm run demo                # abre http://localhost:3000
+npm run setup     # te entrevista y escribe config/agent.yaml + .env por vos
+npm run demo      # abre http://localhost:3000  (o: npm run chat)
 ```
 
-O por terminal, sin navegador:
+`npm run setup` te hace unas preguntas sobre tu negocio (nombre, a qué se dedica, tono, horario, canal, tu API key de OpenRouter) y deja todo configurado. No genera código: solo completa la configuración de un agente que ya está construido y probado.
 
-```bash
-npm run chat
-```
-
-Editá la personalidad del agente en [`config/agent.yaml`](config/agent.yaml). El código no cambia entre un agente y otro — solo ese archivo.
+**¿Preferís hacerlo a mano?** Copiá `.env.example` a `.env`, poné tu `OPENROUTER_API_KEY`, y editá la personalidad en [`config/agent.yaml`](config/agent.yaml). El código no cambia entre un agente y otro — solo ese archivo.
 
 ---
 
@@ -138,6 +134,7 @@ Exponé `http://localhost:3000` con un túnel (ngrok, cloudflared) y apuntá el 
 
 | Comando | Qué hace |
 |---|---|
+| `npm run setup` | Entrevista y arma tu agente (config/agent.yaml + .env). |
 | `npm run demo` | Server con canal web + memoria RAM. Abrí el navegador. |
 | `npm run chat` | Chat por terminal contra el agente. |
 | `npm run dev` | Server con hot reload (usa tu `.env`). |
