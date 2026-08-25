@@ -57,6 +57,8 @@ services:
       - CHATWOOT_API_TOKEN=${CHATWOOT_API_TOKEN:-}
       - CHATWOOT_ACCOUNT_ID=${CHATWOOT_ACCOUNT_ID:-}
       - YCLOUD_API_KEY=${YCLOUD_API_KEY:-}
+      - YCLOUD_FROM_NUMBER=${YCLOUD_FROM_NUMBER:-}
+      - YCLOUD_WEBHOOK_SECRET=${YCLOUD_WEBHOOK_SECRET:-}
     depends_on:
       postgres:
         condition: service_healthy
