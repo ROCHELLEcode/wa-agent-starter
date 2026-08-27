@@ -10,6 +10,20 @@ import { ycloudEnv } from './env.js';
 const WEBHOOK_PATH = '/webhooks/ycloud';
 
 /**
+ * Comandos manuales: los escribís vos mismo, desde la app de WhatsApp
+ * Business, en la conversación con el cliente. Sirven para pausar o
+ * reanudar el agente en ESA conversación puntual (por ejemplo, si vas a
+ * responder vos directamente y no querés que el bot también conteste).
+ *
+ * OJO: como los escribís en el chat real, el cliente los va a ver como un
+ * mensaje tuyo. Podés borrarlos después ("eliminar para todos") si querés.
+ */
+const AGENT_CONTROL_COMMANDS: Record<string, boolean> = {
+  '/pausa': false,
+  '/reanudar': true,
+};
+
+/**
  * Adaptador de YCloud (proveedor de la WhatsApp Business API).
  *
  * Configuración en YCloud: Developers → Webhooks → agregá
@@ -30,6 +44,15 @@ export const ycloudAdapter: ChannelAdapter = {
           logger.warn('webhook ycloud rechazado: firma inválida');
           return reply.code(401).send({ error: 'firma inválida' });
         }
+      }
+
+      // Eco de un mensaje que EL DUEÑO escribió a mano en la app de WhatsApp
+      // (coexistencia). Lo tratamos como comando de control (/pausa,
+      // /reanudar), nunca lo mandamos al agente.
+      const control = parseAgentControl(request.body);
+      if (control) {
+        await applyAgentControl(control, ctx);
+        return reply.code(200).send({ ok: true });
       }
 
       const message = parseInbound(request.body);
@@ -111,4 +134,40 @@ function parseInbound(payload: unknown): NormalizedMessage | null {
     name: m.customerProfile?.name ?? null,
     isInbound: true,
   };
+}
+
+interface AgentControlCommand {
+  externalContactId: string;
+  enable: boolean;
+}
+
+/**
+ * Detecta /pausa y /reanudar en el evento de eco `whatsapp.smb.message.echoes`
+ * (mensajes que vos mandaste a mano desde la app, no vía la API). Cualquier
+ * otro texto tuyo (una respuesta normal a un cliente) devuelve null y sigue
+ * de largo sin tocar nada — por eso son comandos exactos y no "cualquier
+ * mensaje tuyo pausa el bot": así no hay riesgo de pausar por accidente.
+ */
+function parseAgentControl(payload: unknown): AgentControlCommand | null {
+  const p = payload as {
+    type?: string;
+    whatsappMessage?: { to?: string; text?: { body?: string } };
+  };
+  if (p?.type !== 'whatsapp.smb.message.echoes') return null;
+
+  const to = p.whatsappMessage?.to;
+  const body = (p.whatsappMessage?.text?.body ?? '').trim().toLowerCase();
+  if (!to || !(body in AGENT_CONTROL_COMMANDS)) return null;
+
+  return { externalContactId: to, enable: AGENT_CONTROL_COMMANDS[body]! };
+}
+
+async function applyAgentControl(command: AgentControlCommand, ctx: ChannelContext): Promise<void> {
+  const contact = await ctx.store.upsertContact({ externalId: command.externalContactId });
+  const conversation = await ctx.store.getOrCreateConversation(contact.id);
+  await ctx.store.setAgentEnabled(conversation.id, command.enable);
+  logger.info(
+    { to: command.externalContactId, enabled: command.enable },
+    `ycloud: agente ${command.enable ? 'reanudado' : 'pausado'} a mano en esta conversación`,
+  );
 }
