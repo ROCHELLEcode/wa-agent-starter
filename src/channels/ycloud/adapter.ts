@@ -46,7 +46,7 @@ export const ycloudAdapter: ChannelAdapter = {
       'https://api.ycloud.com/v2/whatsapp/messages/sendDirectly',
       {
         method: 'POST',
-        headers: { Authorization: `Bearer ${ycloudEnv.YCLOUD_API_KEY}` },
+        headers: { 'X-API-Key': ycloudEnv.YCLOUD_API_KEY },
         body: {
           from: ycloudEnv.YCLOUD_FROM_NUMBER,
           to: externalContactId,
