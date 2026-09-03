@@ -11,11 +11,6 @@ import { bufferHasMessages, drainBuffer, releaseLock, reschedule, takeLock } fro
 
 const CONCURRENCY = 5;
 
-/**
- * Procesa un turno: junta lo que el usuario escribió (debounce), corre el
- * agente y manda la respuesta por el adaptador de canal activo. Un turno a la
- * vez por conversación (lock).
- */
 async function processTurn(
   job: Job<MessageJob>,
   store: ConversationStore,
@@ -46,10 +41,10 @@ async function processTurn(
 
     logger.info({ conversationId, messages: texts.length }, 'procesando turno');
 
-    const { reply } = await runAgent({ store, conversation, contact, userText: texts.join('\n'), config });
+    const { reply, media } = await runAgent({ store, conversation, contact, userText: texts.join('\n'), config });
     await store.touchLastMessage(conversationId);
 
-    if (!reply) return;
+    if (!reply && media.length === 0) return;
     if (!env.AGENT_REPLY_ENABLED) {
       logger.info({ conversationId, reply }, 'AGENT_REPLY_ENABLED=false: respuesta no enviada');
       return;
@@ -57,14 +52,14 @@ async function processTurn(
 
     await adapter.sendOutbound({
       externalContactId: contact.externalId,
-      text: reply,
+      text: reply ?? '',
       externalConversationId: conversation.externalId,
+      media,
     });
   } finally {
     await releaseLock(conversationId, token);
   }
 
-  // Llegaron mensajes mientras respondíamos: hay que atenderlos.
   if (await bufferHasMessages(conversationId)) {
     await reschedule(conversationId, contactId, env.MESSAGE_DEBOUNCE_MS);
   }
