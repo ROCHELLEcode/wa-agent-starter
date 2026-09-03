@@ -3,6 +3,7 @@ import { env } from '../env.js';
 import { logger } from '../logger.js';
 import type { Contact, Conversation, ConversationStore, HistoryMessage } from '../memory/store.js';
 import type { AgentConfig } from '../config.js';
+import type { MediaItem } from '../channels/types.js';
 import { llm } from './llm.js';
 import { buildSystemPrompt } from './prompt.js';
 import { sanitizeReply } from './sanitize.js';
@@ -15,26 +16,18 @@ export interface RunAgentInput {
   store: ConversationStore;
   conversation: Conversation;
   contact: Contact;
-  /** Lo último que dijo el usuario. null en un turno proactivo (seguimiento). */
   userText: string | null;
   config: AgentConfig;
-  /** Herramientas disponibles. Por defecto, las de tools/index.ts. */
   tools?: Tool[];
-  /** Instrucción de sistema extra para este turno (p.ej. un seguimiento). */
   instruction?: string;
 }
 
 export interface AgentResult {
-  /** Texto a enviar. null si el modelo no produjo respuesta. */
   reply: string | null;
   toolsUsed: string[];
+  media: MediaItem[];
 }
 
-/**
- * Corre el agente sobre lo último que dijo el usuario y devuelve la respuesta.
- * Cada paso (mensaje del modelo, tool call, su resultado) se persiste apenas
- * ocurre: si el proceso muere a mitad del loop, la conversación se reconstruye.
- */
 export async function runAgent(input: RunAgentInput): Promise<AgentResult> {
   const { store, conversation, contact, userText, config } = input;
   const tools = input.tools ?? defaultTools;
@@ -50,6 +43,7 @@ export async function runAgent(input: RunAgentInput): Promise<AgentResult> {
     conversationId: conversation.id,
     contactName: contact.name,
     store,
+    media: [],
   };
 
   const messages: ChatMessage[] = [
@@ -74,7 +68,7 @@ export async function runAgent(input: RunAgentInput): Promise<AgentResult> {
     const choice = completion.choices[0];
     if (!choice) {
       logger.error({ completion }, 'el modelo no devolvió ninguna opción');
-      return { reply: null, toolsUsed };
+      return { reply: null, toolsUsed, media: ctx.media };
     }
 
     const message = choice.message;
@@ -87,10 +81,9 @@ export async function runAgent(input: RunAgentInput): Promise<AgentResult> {
     });
     messages.push(message as ChatMessage);
 
-    // Sin herramientas pedidas, esto es la respuesta final.
     if (toolCalls.length === 0) {
       const t = message.content?.trim();
-      return { reply: t ? sanitizeReply(t) : null, toolsUsed };
+      return { reply: t ? sanitizeReply(t) : null, toolsUsed, media: ctx.media };
     }
 
     for (const call of toolCalls) {
@@ -107,10 +100,9 @@ export async function runAgent(input: RunAgentInput): Promise<AgentResult> {
   }
 
   logger.warn({ conversationId: conversation.id, toolsUsed }, 'el agente agotó las iteraciones de herramientas');
-  return { reply: null, toolsUsed };
+  return { reply: null, toolsUsed, media: ctx.media };
 }
 
-/** Reconstruye el historial guardado al formato que espera la API. */
 function toChat(history: HistoryMessage[]): ChatMessage[] {
   const out: ChatMessage[] = [];
   for (const m of history) {
@@ -130,11 +122,6 @@ function toChat(history: HistoryMessage[]): ChatMessage[] {
   return out;
 }
 
-/**
- * Un `assistant` con tool_calls DEBE ir seguido de un `tool` por cada llamada,
- * o la API rechaza todo. Si el historial quedó cortado a mitad de un loop
- * (proceso caído), podamos esa cola antes de mandarla.
- */
 function pruneOrphanToolCalls(messages: ChatMessage[]): ChatMessage[] {
   const out = [...messages];
   while (out.length > 0) {
@@ -148,7 +135,6 @@ function pruneOrphanToolCalls(messages: ChatMessage[]): ChatMessage[] {
   return out;
 }
 
-/** Ejecuta la herramienta y NUNCA lanza: un error vuelve al modelo como dato. */
 async function runTool(
   toolMap: Map<string, Tool>,
   name: string,
