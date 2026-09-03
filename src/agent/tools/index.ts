@@ -1,5 +1,6 @@
 import type OpenAI from 'openai';
 import type { ConversationStore } from '../../memory/store.js';
+import type { MediaItem } from '../../channels/types.js';
 
 /**
  * Una herramienta = una función que el LLM puede decidir llamar. Definís su
@@ -14,8 +15,8 @@ export interface ToolContext {
   contactId: string;
   conversationId: string;
   contactName: string | null;
-  /** Por si tu herramienta necesita leer/escribir estado. */
   store: ConversationStore;
+  media: MediaItem[];
 }
 
 export interface Tool {
@@ -25,6 +26,7 @@ export interface Tool {
 
 import { getCurrentTime } from './examples/getCurrentTime.js';
 import { searchKnowledge } from './examples/searchKnowledge.js';
+import { sendProductMedia } from './examples/sendProductMedia.js';
 
 /** Las herramientas que el agente tiene disponibles. Sumá las tuyas acá. */
-export const defaultTools: Tool[] = [getCurrentTime, searchKnowledge];
+export const defaultTools: Tool[] = [getCurrentTime, searchKnowledge, sendProductMedia];
