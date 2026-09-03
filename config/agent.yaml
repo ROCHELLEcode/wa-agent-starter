@@ -13,22 +13,28 @@ system_prompt: |
   Qué podés hacer:
   - Responder dudas de precios, specs, horario, ubicación y envíos usando la
     herramienta search_knowledge.
+  - Mandar fotos o videos de una máquina (o del envío a provincia) con
+    send_product_media cuando el cliente lo pida o cuando ayude a vender.
   - Decir la fecha y hora con get_current_time.
 
   Cómo vendés:
   - Si preguntan por "una desgranadora" sin especificar, preguntá si es para
     poca (mediana) o mucha cantidad (grande) de maíz, o si prefieren gasolina
     o eléctrica, antes de dar el precio.
+  - Después de dar precio y specs, ofrecé mandar foto o video con
+    send_product_media.
   - Para cerrar una compra con envío a provincia, explicá el adelanto por
-    Yape/Plin (los datos los coordina Christopher directamente, decilo así).
+    Yape/Plin (los datos de pago se los coordina un asesor directamente,
+    dígalo así, sin mencionar nombres).
 
   Qué NUNCA hacés:
   - Inventar datos, precios o stock. Si no lo sabés y no sale de una
     herramienta, decilo con honestidad y ofrecé consultarlo.
   - Explicar que las máquinas son de la marca CAIM o que son distribuidores;
     para el cliente, esto es simplemente "Cya".
-  - Ofrecer mandar fotos o videos todavía — si te piden, decí que en un
-    momento se las manda Christopher directamente.
+  - Mencionar el nombre de Christopher ni de ninguna persona en particular;
+    si hace falta hablar de alguien del equipo, decí "un asesor" o "nuestro
+    equipo".
 
 knowledge:
   - "Horario de atención: lunes a sábado de 9am a 6pm."
@@ -40,5 +46,44 @@ knowledge:
   - "Desgranadora de maíz ELÉCTRICA: motor eléctrico 3HP, produce hasta 1.5 toneladas por hora, precio S/699 (antes S/800). Ideal para quien no quiere usar gasolina."
   - "Specs generales de las desgranadoras: 99.5% de eficiencia de trituración, transmisión por correa, estructura atornillada resistente, fácil mantenimiento. Peso aprox. 38kg."
   - "Ideales para pequeños y grandes productores, granjas y cooperativas."
+
+products:
+  - key: "desgranadora_mediana_gasolina"
+    media:
+      - url: "https://raw.githubusercontent.com/ROCHELLEcode/wa-agent-starter/main/public/media/desgranadora-mediana-gasolina.jpg"
+        type: "image"
+        caption: "Desgranadora de maíz a gasolina (mediana) - 8.5HP, hasta 1.5 ton/hora - S/699"
+
+  - key: "desgranadora_grande_gasolina"
+    media:
+      - url: "https://raw.githubusercontent.com/ROCHELLEcode/wa-agent-starter/main/public/media/desgranadora-grande-gasolina-1.mp4"
+        type: "video"
+        caption: "Desgranadora de maíz a gasolina (grande) - 8.5HP, hasta 2 ton/hora - S/799"
+      - url: "https://raw.githubusercontent.com/ROCHELLEcode/wa-agent-starter/main/public/media/desgranadora-grande-gasolina-2.mp4"
+        type: "video"
+
+  - key: "desgranadora_electrica"
+    media:
+      - url: "https://raw.githubusercontent.com/ROCHELLEcode/wa-agent-starter/main/public/media/desgranadora-electrica.jpg"
+        type: "image"
+        caption: "Desgranadora de maíz eléctrica - 3HP, hasta 1.5 ton/hora - S/699"
+
+  - key: "ubicacion"
+    media:
+      - url: "https://raw.githubusercontent.com/ROCHELLEcode/wa-agent-starter/main/public/media/ubicacion-mapa.jpg"
+        type: "image"
+        caption: "Cómo llegar: Av. 12 de Octubre 2501, S.M.P."
+      - url: "https://raw.githubusercontent.com/ROCHELLEcode/wa-agent-starter/main/public/media/ubicacion-fachada.jpg"
+        type: "image"
+        caption: "Nuestra tienda (al costado de Frenos Wily)"
+
+  - key: "envio_provincia"
+    media:
+      - url: "https://raw.githubusercontent.com/ROCHELLEcode/wa-agent-starter/main/public/media/envio-provincia-1.mp4"
+        type: "video"
+      - url: "https://raw.githubusercontent.com/ROCHELLEcode/wa-agent-starter/main/public/media/envio-provincia-2.mp4"
+        type: "video"
+      - url: "https://raw.githubusercontent.com/ROCHELLEcode/wa-agent-starter/main/public/media/envio-provincia-3.mp4"
+        type: "video"
 
 greeting: "Bienvenido/a a Cya. ¿En qué puedo ayudarle? Cuénteme qué necesita y con gusto le asesoro."
