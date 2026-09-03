@@ -64,24 +64,48 @@ export const ycloudAdapter: ChannelAdapter = {
     logger.info({ path: WEBHOOK_PATH }, 'canal ycloud listo');
   },
 
-  async sendOutbound({ externalContactId, text }: SendOutboundInput): Promise<{ messageId?: string }> {
-    const res = await requestJson<{ id?: string; whatsappMessage?: { id?: string } }>(
-      'https://api.ycloud.com/v2/whatsapp/messages/sendDirectly',
-      {
-        method: 'POST',
-        headers: { 'X-API-Key': ycloudEnv.YCLOUD_API_KEY },
-        body: {
-          from: ycloudEnv.YCLOUD_FROM_NUMBER,
-          to: externalContactId,
-          type: 'text',
-          text: { body: text },
-        },
-        context: 'ycloud.send',
-      },
-    );
-    return { messageId: res.whatsappMessage?.id ?? res.id };
+  async sendOutbound({ externalContactId, text, media }: SendOutboundInput): Promise<{ messageId?: string }> {
+    let lastId: string | undefined;
+
+    // Primero las fotos/videos (si hay), después el texto de la respuesta.
+    for (const item of media ?? []) {
+      const res = await sendYCloudMessage({
+        to: externalContactId,
+        type: item.type,
+        payload: { link: item.url, ...(item.caption ? { caption: item.caption } : {}) },
+      });
+      lastId = res.whatsappMessage?.id ?? res.id ?? lastId;
+    }
+
+    if (text) {
+      const res = await sendYCloudMessage({ to: externalContactId, type: 'text', payload: { body: text } });
+      lastId = res.whatsappMessage?.id ?? res.id ?? lastId;
+    }
+
+    return { messageId: lastId };
   },
 };
+
+async function sendYCloudMessage(input: {
+  to: string;
+  type: 'text' | 'image' | 'video';
+  payload: Record<string, unknown>;
+}): Promise<{ id?: string; whatsappMessage?: { id?: string } }> {
+  return requestJson<{ id?: string; whatsappMessage?: { id?: string } }>(
+    'https://api.ycloud.com/v2/whatsapp/messages/sendDirectly',
+    {
+      method: 'POST',
+      headers: { 'X-API-Key': ycloudEnv.YCLOUD_API_KEY },
+      body: {
+        from: ycloudEnv.YCLOUD_FROM_NUMBER,
+        to: input.to,
+        type: input.type,
+        [input.type]: input.payload,
+      },
+      context: `ycloud.send.${input.type}`,
+    },
+  );
+}
 
 /**
  * Verifica el header `YCloud-Signature: t={timestamp},s={signature}`.
