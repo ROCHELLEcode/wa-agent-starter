@@ -10,14 +10,23 @@ import { logger } from './logger.js';
  * Toda la "identidad" del bot vive en config/agent.yaml — el código no cambia
  * entre un agente y otro, solo este archivo.
  */
+const mediaItemSchema = z.object({
+  url: z.string(),
+  type: z.enum(['image', 'video']),
+  caption: z.string().optional(),
+});
+
+const productSchema = z.object({
+  key: z.string(),
+  media: z.array(mediaItemSchema).default([]),
+});
+
 const schema = z.object({
   name: z.string().default('Asistente'),
-  // El system prompt: quién es, cómo habla, qué puede y qué no.
   system_prompt: z.string().min(1, 'Falta system_prompt en agent.yaml'),
-  // Mensaje de bienvenida opcional (lo usa el demo web).
   greeting: z.string().optional(),
-  // Base de conocimiento simple: la herramienta search_knowledge busca acá.
   knowledge: z.array(z.string()).default([]),
+  products: z.array(productSchema).default([]),
 });
 
 export type AgentConfig = z.infer<typeof schema>;
