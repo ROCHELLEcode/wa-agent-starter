@@ -43,6 +43,14 @@ export const sendProductMedia: Tool = {
     }
 
     ctx.media.push(...product.media);
-    return { ok: true, sent: product.media.length };
+    const captions = product.media.map((m) => m.caption).filter((c): c is string => Boolean(c));
+    return {
+      ok: true,
+      sent: product.media.length,
+      captions,
+      note: captions.length
+        ? 'Usá EXACTAMENTE estos datos (specs y precio) si los mencionás en tu respuesta. No inventes otros.'
+        : undefined,
+    };
   },
 };
