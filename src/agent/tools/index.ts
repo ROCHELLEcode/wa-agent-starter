@@ -27,6 +27,7 @@ export interface Tool {
 import { getCurrentTime } from './examples/getCurrentTime.js';
 import { searchKnowledge } from './examples/searchKnowledge.js';
 import { sendProductMedia } from './examples/sendProductMedia.js';
+import { staySilent } from './examples/staySilent.js';
 
 /** Las herramientas que el agente tiene disponibles. Sumá las tuyas acá. */
-export const defaultTools: Tool[] = [getCurrentTime, searchKnowledge, sendProductMedia];
+export const defaultTools: Tool[] = [getCurrentTime, searchKnowledge, sendProductMedia, staySilent];
